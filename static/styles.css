@@ -1,0 +1,29 @@
+.book-card {
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 5px;
+    text-align: center;
+    height: 320px; /* fix height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #1e1e1e;
+}
+.book-card img {
+    height: 180px;
+    width: auto;
+    margin: 0 auto;
+    object-fit: contain;
+}
+.book-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-top: 5px;
+    min-height: 35px; /* fix space for title */
+}
+.book-author {
+    font-size: 12px;
+    color: #bbb;
+    min-height: 20px; /* fix space for author */
+}
