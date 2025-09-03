@@ -2,3 +2,5 @@ streamlit
 requests
 sqlite3
 os
+opencv
+pyzbar

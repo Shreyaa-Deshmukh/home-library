@@ -1,7 +1,21 @@
 import os
 import streamlit as st
+import qrcode
 from db.database import get_book_by_id, update_cover, update_pdf
 from services.openlibrary import fetch_book_details, get_cover_url
+
+
+def generate_qr_for_book(accessible_number, book_id):
+    """Generate and cache QR code for a book."""
+    os.makedirs("uploads", exist_ok=True)
+    qr_path = os.path.join("uploads", f"qr_{book_id}.png")
+    if not os.path.exists(qr_path):  # generate once, reuse later
+        qr = qrcode.QRCode(box_size=8, border=2)
+        qr.add_data(f"http://localhost:8501?book={accessible_number}")
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        img.save(qr_path)
+    return qr_path
 
 def show_book_details():
     st.subheader("📖 Book Details")
@@ -22,6 +36,12 @@ def show_book_details():
     st.write(f"**Author:** {book[3]}")
     st.write(f"**Genre:** {book[4]}")
     st.write(f"**Status:** {book[5]}")
+
+    if len(book) >= 9  and book[8] :
+        qr_path = generate_qr_for_book(book[8], book_id)
+        st.markdown("**Share this book:**")
+        st.image(qr_path, width=150, caption=f"Scan to view {book[2]}")
+
 
     # If book has ISBN → try preview from OpenLibrary
     if book[1] != "Manual":

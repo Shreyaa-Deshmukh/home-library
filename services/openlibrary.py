@@ -29,9 +29,10 @@ def search_isbn_by_title_author(title, author):
     return None
 
 def get_cover_url(isbn, cover_path):
+    local_placeholder = "static/converted-no_cover.jpeg"
     if cover_path and os.path.exists(cover_path):
         return cover_path
     elif isbn and isbn != "Manual":
         return f"https://covers.openlibrary.org/b/isbn/{isbn}-M.jpg"
     else:
-        return "https://via.placeholder.com/150x200.png?text=No+Cover"
+        return local_placeholder

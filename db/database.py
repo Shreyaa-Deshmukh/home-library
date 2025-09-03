@@ -1,8 +1,9 @@
 import sqlite3
+import uuid
 
 def init_db():
-    conn = sqlite3.connect("library.db")
-    c = conn.cursor()
+    conn = sqlite3.connect("library.db") #open connection
+    c = conn.cursor() #calls connection
     c.execute('''CREATE TABLE IF NOT EXISTS books (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     isbn TEXT,
@@ -10,20 +11,33 @@ def init_db():
                     author TEXT,
                     genre TEXT,
                     status TEXT,
-                    pdf_path TEXT
+                    pdf_path TEXT,
+                    cover_path TEXT,
+                    accessible_number TEXT UNIQUE
                 )''')
     try:
-        c.execute("ALTER TABLE books ADD COLUMN cover_path TEXT")
+        c.execute("ALTER TABLE books ADD COLUMN accessible_number TEXT UNIQUE")
     except sqlite3.OperationalError:
         pass
     conn.commit()
     conn.close()
 
+
+def generate_accessible_number():
+    """Generate next available unique number like HL-0001, HL-0002 ..."""
+    conn = sqlite3.connect("library.db")
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM books")
+    count = c.fetchone()[0]
+    conn.close()
+    return f"HL-{count+1:04d}"
+
 def add_book(isbn, title, author, genre, status="Available", pdf_path=None, cover_path=None):
     conn = sqlite3.connect("library.db")
     c = conn.cursor()
-    c.execute("INSERT INTO books (isbn, title, author, genre, status, pdf_path, cover_path) VALUES (?,?,?,?,?,?,?)",
-              (isbn, title, author, genre, status, pdf_path, cover_path))
+    accessible_number = str(uuid.uuid4())[:8]
+    c.execute("INSERT INTO books (isbn, title, author, genre, status, pdf_path, cover_path, accessible_number ) VALUES (?,?,?,?,?,?,?,?)",
+              (isbn, title, author, genre, status, pdf_path, cover_path, accessible_number))
     conn.commit()
     conn.close()
 
@@ -40,6 +54,15 @@ def get_book_by_id(book_id):
     conn = sqlite3.connect("library.db")
     c = conn.cursor()
     c.execute("SELECT * FROM books WHERE id=?", (book_id,))
+    result = c.fetchone()
+    conn.close()
+    return result
+
+def get_book_by_accessible_number(accessible_number):
+    """Fetch book using its unique accessible number (used by QR code scanning)"""
+    conn = sqlite3.connect("library.db")
+    c = conn.cursor()
+    c.execute("SELECT * FROM books WHERE accessible_number=?", (accessible_number,))
     result = c.fetchone()
     conn.close()
     return result
