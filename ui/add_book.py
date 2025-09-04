@@ -4,10 +4,11 @@ from services.openlibrary import fetch_book_details, search_isbn_by_title_author
 from sample_test.barcode import scan_barcode
 import os 
 
+
 def show_add_book():
     st.subheader("➕ Add Book")
 
-
+    #Option 1: Manual ISBN Entry
     isbn = st.text_input("Enter ISBN")
     if st.button("Fetch Details"):
         if isbn.strip() =="":
@@ -50,8 +51,57 @@ def show_add_book():
         else:
             st.error("No barcode detected.")
 
+    
+    # --- Option 3: Live Camera Scanner ---
+    st.write("Or scan live from camera:")
+
+    if "live_scan" not in st.session_state:
+        st.session_state["live_scan"] = False
+
+    if not st.session_state["live_scan"]:
+        if st.button("📸 Start Live Scan"):
+            st.session_state["live_scan"] = True
+            st.rerun()
+    else:
+        live_image = st.camera_input("Align the barcode in view and capture")
+
+        if live_image is not None:
+            os.makedirs("uploads", exist_ok=True)
+            image_path = os.path.join("uploads", "live_scan.png")
+
+            # Save captured frame
+            with open(image_path, "wb") as f:
+                f.write(live_image.getbuffer())
+
+            # Decode barcode
+            decoded = scan_barcode(image_path)
+            if decoded:
+                isbn_candidate = str(decoded[0]).strip()
+
+                if isbn_candidate.isdigit() and len(isbn_candidate) in (10, 13):
+                    st.info(f"Detected ISBN from live scan: {isbn_candidate} → adding to library...")
+                    title, author, _ = fetch_book_details(isbn_candidate)
+                    if title:
+                        add_book(isbn_candidate, title, author, genre="Unknown", status="Available")
+                        st.success(f"✅ Added: {title} by {author}")
+                        st.session_state["menu"] = "View Library"
+                        st.session_state["live_scan"] = False
+                        st.rerun()
+                    else:
+                        st.warning("Could not fetch book details. Please add manually.")
+                else:
+                    st.warning(f"Scanned code '{isbn_candidate}' is not a valid ISBN.")
+            else:
+                st.error("No barcode detected from camera.")
+        
+        if st.button("❌ Cancel Live Scan"):
+            st.session_state["live_scan"] = False
+            st.rerun()
 
 
+
+
+    # -- Option 4: Manual Title author entry
     st.write("Or enter manually:")
     manual_title = st.text_input("Title")
     manual_author = st.text_input("Author")
@@ -70,4 +120,6 @@ def show_add_book():
             else:
                 add_book("Manual", manual_title, manual_author, manual_genre)
                 st.success(f"✅ Added: {manual_title} by {manual_author}")
+
+    
             
