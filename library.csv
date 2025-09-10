@@ -1,0 +1,13 @@
+id,isbn,title,author,genre,status,pdf_path,cover_path,accessible_number
+1,978-0439708180,Harry Potter and the sorcerer's stone,J. K. Rowling,Unknown,Available,,,d31367d9
+3,9789390166268,The Psychology Of Money,Morgan Housel,Unknown,Available,,,93bda890
+4,9781492041139,Data Science from Scratch,Joel Grus,Unknown,Available,,,1203c1a1
+5,Manual,Learn AI assisted Python Programming With GitHub Copilot and ChatGPT," Leo Porter ,  Daniel Zingaro",,Available,uploads\book_5.pdf,uploads\cover_5.png,7083a16d
+7,978-0439708180,Harry Potter and the sorcerer's stone,J. K. Rowling,Unknown,Available,,,781f45e7
+8,9781338878929,Harry Potter and the Sorcerer's Stone,J. K. Rowling,Unknown,Available,,,08bb6a96
+9,9780747542155,Harry Potter and the Prisoner of Azkaban,J. K. Rowling,Unknown,Available,,,3984c284
+10,9798607064822,Python Data Science,Aaron Khan,Unknown,Available,,,0984f2cb
+11,9789390166268,The Psychology Of Money,Morgan Housel,Unknown,Available,,,f9d016a6
+12,9781582701707,The Secret,Rhonda Byrne,Unknown,Available,,,997a2d56
+13,978-0439708180,Harry Potter and the sorcerer's stone,J. K. Rowling,Unknown,Available,,,4176fe80
+14,9798607064822,Python Data Science,Aaron Khan,Unknown,Available,,,50a98c81

@@ -16,8 +16,12 @@ def show_add_book():
         else:    
             title, author, _ = fetch_book_details(isbn)
             if title:
-                add_book(isbn, title, author, genre="Unknown", status="Available")
-                st.success(f"✅ Added: {title} by {author}")   # <-- show here    
+                success = add_book(isbn, title, author, genre="Unknown", status="Available")
+                if success:
+                    st.success(f"✅ Added: {title} by {author}")
+                else:
+                    st.warning("⚠️ Book already exists in your library!")
+               
             else:
                 st.error("No details found. Try manual entry.")
 
@@ -40,10 +44,14 @@ def show_add_book():
                 st.info(f"Detected ISBN: {isbn_candidate} → adding to library...")
                 title, author, _ = fetch_book_details(isbn_candidate)
                 if title:
-                    add_book(isbn_candidate, title, author, genre="Unknown", status="Available")
-                    st.success(f"✅ Added: {title} by {author}")
-                    st.session_state["menu"] = "View Library"
-                    st.rerun()
+                    success = add_book(isbn_candidate, title, author, genre="Unknown", status="Available")
+                    if success:
+                        st.success(f"✅ Added: {title} by {author}")
+                        st.session_state["menu"] = "View Library"
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Book already exists in your library!")
+                   
                 else:
                     st.warning("Could not fetch book details. Please add manually.")
             else:
@@ -82,11 +90,14 @@ def show_add_book():
                     st.info(f"Detected ISBN from live scan: {isbn_candidate} → adding to library...")
                     title, author, _ = fetch_book_details(isbn_candidate)
                     if title:
-                        add_book(isbn_candidate, title, author, genre="Unknown", status="Available")
-                        st.success(f"✅ Added: {title} by {author}")
-                        st.session_state["menu"] = "View Library"
-                        st.session_state["live_scan"] = False
-                        st.rerun()
+                        success = add_book(isbn_candidate, title, author, genre="Unknown", status="Available")
+                        if success:
+                            st.success(f"✅ Added: {title} by {author}")
+                            st.session_state["menu"] = "View Library"
+                            st.session_state["live_scan"] = False
+                            st.rerun()
+                        else:
+                            st.warning("⚠️ Book already exists in your library!")
                     else:
                         st.warning("Could not fetch book details. Please add manually.")
                 else:
@@ -112,14 +123,23 @@ def show_add_book():
             if isbn_guess:
                 title, author, _ = fetch_book_details(isbn_guess)
                 if title:
-                    add_book(isbn_guess, title, author, manual_genre)
-                    st.success(f"✅ Added: {title} by {author}")
+                    success = add_book(isbn_guess, title, author, manual_genre)
+                    if success:
+                        st.success(f"✅ Added: {title} by {author}")
+                    else:
+                        st.warning("⚠️ Book already exists in your library!")
+            
                 else:
-                    add_book("Manual", manual_title, manual_author, manual_genre)
-                    st.success(f"✅ Added: {manual_title} by {manual_author}")
+                    success = add_book("Manual", manual_title, manual_author, manual_genre)
+                    if success:
+                        st.success(f"✅ Added: {manual_title} by {manual_author}")
+                    else:
+                        st.warning("⚠️ Book already exists in your library!")
             else:
-                add_book("Manual", manual_title, manual_author, manual_genre)
-                st.success(f"✅ Added: {manual_title} by {manual_author}")
-
+                success = add_book("Manual", manual_title, manual_author, manual_genre)
+                if success:
+                    st.success(f"✅ Added: {manual_title} by {manual_author}")
+                else:
+                    st.warning("⚠️ Book already exists in your library.")
     
             

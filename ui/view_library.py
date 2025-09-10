@@ -7,8 +7,12 @@ from utils.helper import get_cover_url
 def show_view_library(book_card_template):
     st.subheader("📖 Your Bookshelf")
 
+    col1, col2 = st.columns([3,1])
+    with col1:
     # 🔎 Add search bar
-    search_query = st.text_input("🔍 Search books by title or author", key="search_box")
+        search_query = st.text_input("🔍 Search books by title or author", key="search_box")
+    with col2 :
+        sort_option = st.selectbox("Sort by:",["Recent","Title"], index=0)
     books = get_all_books()
 
     # Filter books based on search query
@@ -19,6 +23,13 @@ def show_view_library(book_card_template):
             or search_query.lower() in b[3].lower()  # author
         ]
 
+    #---Apply Sorting---
+    if sort_option == "Title":
+        books.sort(key=lambda b : b[2].lower())
+    else:
+        books.sort(key=lambda b:b[0], reverse=True)
+    
+    #---Display books---
     if not books:
         st.info("No books found." if search_query else "No books yet.")
     else:

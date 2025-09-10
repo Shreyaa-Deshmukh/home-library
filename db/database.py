@@ -1,8 +1,13 @@
 import sqlite3
 import uuid
+import csv
+import os
+
+DB_PATH = "library.db"
+CSV_PATH = "library.csv"
 
 def init_db():
-    conn = sqlite3.connect("library.db") #open connection
+    conn = sqlite3.connect(DB_PATH) #open connection
     c = conn.cursor() #calls connection
     c.execute('''CREATE TABLE IF NOT EXISTS books (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,6 +26,22 @@ def init_db():
         pass
     conn.commit()
     conn.close()
+    sync_to_csv()
+
+def sync_to_csv():
+    """Export the entire books table to library.csv"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT * FROM books")
+    rows = c.fetchall()
+    headers = [desc[0] for desc in c.description]  # column names
+
+    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        writer.writerows(rows)
+
+    conn.close()   
 
 
 def generate_accessible_number():
@@ -35,11 +56,21 @@ def generate_accessible_number():
 def add_book(isbn, title, author, genre, status="Available", pdf_path=None, cover_path=None):
     conn = sqlite3.connect("library.db")
     c = conn.cursor()
+  
+    
+    # ✅ Check if book already exists by ISBN
+    c.execute("SELECT id FROM books WHERE isbn=? AND title=? AND author=?", (isbn, title, author))
+    existing = c.fetchone()
+    if existing:
+        conn.close()
+        return False   # 🚨 Duplicate found
+
     accessible_number = str(uuid.uuid4())[:8]
     c.execute("INSERT INTO books (isbn, title, author, genre, status, pdf_path, cover_path, accessible_number ) VALUES (?,?,?,?,?,?,?,?)",
               (isbn, title, author, genre, status, pdf_path, cover_path, accessible_number))
     conn.commit()
     conn.close()
+    sync_to_csv()
 
 
 def get_all_books():
@@ -73,6 +104,7 @@ def delete_book(book_id):
     c.execute("DELETE FROM books WHERE id=?", (book_id,))
     conn.commit()
     conn.close()
+    sync_to_csv()
 
 def update_pdf(book_id, pdf_path):
     conn = sqlite3.connect("library.db")
@@ -80,6 +112,7 @@ def update_pdf(book_id, pdf_path):
     c.execute("UPDATE books SET pdf_path=? WHERE id=?", (pdf_path, book_id))
     conn.commit()
     conn.close()
+    sync_to_csv()
 
 def update_cover(book_id, cover_path):
     conn = sqlite3.connect("library.db")
@@ -87,5 +120,6 @@ def update_cover(book_id, cover_path):
     c.execute("UPDATE books SET cover_path=? WHERE id=?", (cover_path, book_id))
     conn.commit()
     conn.close()
+    sync_to_csv()
 
 # (same pattern for get_all_books, get_book_by_id, delete_book, update_pdf, update_cover)
